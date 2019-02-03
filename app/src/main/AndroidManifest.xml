@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
           package="com.carlos.cposed">
 
     <application
@@ -22,7 +22,7 @@
                 android:value="true" />
         <meta-data
                 android:name="xposeddescription"
-                android:value="XXX插件" />
+                android:value="A plugin to hook Wechat and Alipay" />
         <meta-data
                 android:name="xposedminversion"
                 android:value="89" />
