@@ -1,4 +1,4 @@
-package com.carlos.cposed
+package com.carlos.cxposed
 
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XC_MethodHook

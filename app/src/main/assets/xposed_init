@@ -1,3 +1,9 @@
-com.carlos.cposed.TargetHook
-com.carlos.cposed.AlipayHook
-com.carlos.cposed.WechatHook
+com.carlos.cxposed.TargetHook
+com.carlos.cxposed.AlipayHook
+com.carlos.cxposed.WechatHook
+com.carlos.cxposed.WechatRedpacketHook
+com.carlos.cxposed.TestHook
+
+com.carlos.cxposed.WechatHook2
+com.carlos.cxposed.WechatHook3
+com.carlos.cxposed.WechatHook4

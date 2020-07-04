@@ -1,4 +1,4 @@
-package com.carlos.cposed
+package com.carlos.cxposed
 
 import androidx.test.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4

@@ -1,4 +1,4 @@
-package com.carlos.cposed
+package com.carlos.cxposed
 
 import org.junit.Test
 

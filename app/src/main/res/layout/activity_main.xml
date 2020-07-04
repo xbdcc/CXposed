@@ -8,13 +8,21 @@
         tools:context=".MainActivity">
 
     <TextView
+            android:id="@+id/textview"
             android:onClick="click"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Check version"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
+
+    <com.robinhood.ticker.TickerView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:contentDescription="23"
+            android:text="fdfdf"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

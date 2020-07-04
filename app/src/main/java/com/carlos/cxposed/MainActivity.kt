@@ -1,8 +1,10 @@
-package com.carlos.cposed
+package com.carlos.cxposed
 
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import com.carlos.cutils.util.LogUtils
+import com.carlos.cutils.util.ToastUtil
 
 class MainActivity : AppCompatActivity() {
 
@@ -14,9 +16,13 @@ class MainActivity : AppCompatActivity() {
     val url = "https://api.github.com/repos/xbdcc/test/releases/latest"
 
     fun click(view: View) {
+        LogUtils.d("click")
+//        UpdateDefaultImpl().updateDefault(this, url)
 
-        UpdateDefaultImpl().updateDefault(this, url)
+    }
 
+    fun test () {
+        ToastUtil.Builder(this).setText("test").build()
     }
 
 }
