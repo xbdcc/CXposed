@@ -1,4 +1,4 @@
-package com.carlos.cxposed
+package com.carlos.cxposed.old
 
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XC_MethodHook
@@ -44,7 +44,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
  * Test in Alipay version 10.1.55.
  * Refer to artic:https://juejin.im/post/5c4531c451882524ff640bbc.
  */
-class AlipayHook : IXposedHookLoadPackage {
+class Alipay10_1_55Hook : IXposedHookLoadPackage {
 
     private val packageName = "com.eg.android.AlipayGphone"
     private val TAG = "AlipayHook-"

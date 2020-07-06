@@ -22,7 +22,7 @@
                 android:value="true" />
         <meta-data
                 android:name="xposeddescription"
-                android:value="A plugin to hook Wechat and Alipay" />
+                android:value="A plugin to hook Wechat" />
         <meta-data
                 android:name="xposedminversion"
                 android:value="54" />

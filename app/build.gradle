@@ -4,6 +4,15 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
+def defaultPropertiesFile = rootProject.file("buildsystem/default.properties")
+def defaultProperties = new Properties()
+defaultProperties.load(new FileInputStream(defaultPropertiesFile))
+
+def keystorePropertiesFile = rootProject.file("buildsystem/keystore.properties")
+if (keystorePropertiesFile.exists()) {
+    defaultProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     compileSdkVersion 28
     defaultConfig {
@@ -11,13 +20,27 @@ android {
         minSdkVersion 18
         targetSdkVersion 27
         versionCode 1
-        versionName "0.0.2"
+        versionName "0.0.3"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    signingConfigs {
+        release {
+            keyAlias defaultProperties['keyAlias']
+            keyPassword defaultProperties['keyPassword']
+            storeFile file(defaultProperties['storeFile'])
+            storePassword defaultProperties['storePassword']
+        }
     }
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 }
@@ -26,11 +49,8 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
     compileOnly 'de.robv.android.xposed:api:82'
-//    compileOnly 'de.robv.android.xposed:api:89:sources'//可以去掉
 
     implementation 'com.carlos.cutils:cutils:0.0.28'
-
-//    implementation 'com.github.rovo89:xposed:89'
 
     implementation 'com.robinhood.ticker:ticker:2.0.2'
 

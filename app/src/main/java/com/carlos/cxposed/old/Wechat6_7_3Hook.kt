@@ -1,4 +1,4 @@
-package com.carlos.cposed
+package com.carlos.cxposed.old
 
 import android.widget.TextView
 import de.robv.android.xposed.IXposedHookLoadPackage
@@ -44,7 +44,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
  * Change the change and chang wallet in change page.
  * Test in Wechat version 6.7.3.
  */
-class WechatHook : IXposedHookLoadPackage {
+class Wechat6_7_3Hook : IXposedHookLoadPackage {
 
     private val packageName = "com.tencent.mm"
     private val TAG = "WechatHook-"

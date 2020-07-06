@@ -51,5 +51,4 @@ freeline/
 freeline_project_description.json
 
 # Special neglect
-app/src/main/java/com/carlos/bbox/local
 local
