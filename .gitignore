@@ -52,3 +52,5 @@ freeline_project_description.json
 
 # Special neglect
 local
+/buildsystem/keystore.properties
+/buildsystem/carlos.jks
