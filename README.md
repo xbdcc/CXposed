@@ -5,7 +5,7 @@
 - 此篇代码仓库：https://github.com/xbdcc/CXposed
 
 ## 需求
-比如说每个人都有一个小目标，每天看看自己的目标会更有动力，那么现在实现"一个亿"的小目标，我们让从点击我的Tab开始，
+比如说每个人都有一个小目标，每天看看自己的目标会更有动力，那么现在实现"一个亿"的小目标，我们先从点击我的Tab开始，
 进入支付页面-钱包页面-零钱页面显示的金额都是`¥100000000.00`
 
 ## 结果
@@ -195,10 +195,10 @@ com.robinhood.ticker.TickerView{21299fb V.ED.... ........ 0,0-330,114 #7f091794 
 ```
 #### 通过apk查看
 可以把apk拖进AS中，在`resources.arsc`下选择你要找的id，得到的值为十六进制
-![](/http://xbdcc.cn/image/CXposed/wechat/get_id.jpg)
+![](http://xbdcc.cn/image/CXposed/wechat/get_id.jpg)
 #### 通过jadx查看
 双击`resources.arsc`，可以在里面搜索id，得到的值为十进制。如id为`dod`的值为十进制值`2131302292`
-![](/http://xbdcc.cn/image/CXposed/wechat/jadx3.jpg)
+![](http://xbdcc.cn/image/CXposed/wechat/jadx3.jpg)
 
 
 ## Hook分析
