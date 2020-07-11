@@ -1,16 +1,24 @@
 # Xposed系列之微信装X指南(二)
 
+- 学习娱乐，分享下如何通过Xposed让自己的资产看起来实现了小目标，文章如果有纰漏欢迎指出改正
+- 上篇文章传送门：[Xposed系列之Demo上手指南及源码解析(一)](https://github.com/xbdcc/CXposed/blob/master/demo/README.md)
+- 此篇代码仓库：https://github.com/xbdcc/CXposed
+
 ## 需求
-比如说每个人都有一个小目标，每天看看自己的目标会更有动力，比如每天看着微信余额几毛钱几块钱
-仅为学习娱乐，分享下如何通过Xposed让自己的资产看起来实现了小目标
-首先设定下目标，支付页面，钱包页面，零钱页面
+比如说每个人都有一个小目标，每天看看自己的目标会更有动力，那么现在实现"一个亿"的小目标，我们让从点击我的Tab开始，
+进入支付页面-钱包页面-零钱页面显示的金额都是`¥100000000.00`
 
 ## 结果
+最后代码实现的效果如下：
+
+![](http://xbdcc.cn/image/CXposed/wechat/wechat.gif)
+
+[旧版本实现效果](https://github.com/xbdcc/CXposed/blob/master/res/old_README.md)
 
 ## 准备工作
 ### Root相关
 - [TWRP Recovery](https://twrp.me/)：一款强大的第三方recovery，有着官方Recovery无法做到的功能，安装Magisk Manager需要用到
-- [Magisk Manager](https://magiskmanager.com/)：一款强大的刷Root工具，可以替代替代`SuperSU`进行root权限管理
+- [Magisk Manager](https://magiskmanager.com/)：一款强大的刷Root工具，可以替代`SuperSU`进行root权限管理
 
 如果用VirtualXposed或太极或其他虚拟环境的Xposed则可以不用Root，如果用Xposed Installer则需要Root权限，
 关于这三者可看上篇文章：[Xposed系列之Demo上手指南及源码解析(一)](https://github.com/xbdcc/CXposed/blob/master/demo/README.md)
@@ -30,8 +38,6 @@
 ![](http://xbdcc.cn/image/CXposed/wechat/jadx2.jpg)
 
 ### Hook分析相关
-- adb命令：
-- monitor：
 
 #### adb命令
 adb 命令可以参考https://github.com/xbdcc/CCommand， 这里简单介绍这里需要使用的：
@@ -179,13 +185,13 @@ TASK com.tencent.mm id=184
 - ![](http://xbdcc.cn/image/CXposed/wechat/monitor_trace.jpg)，生成生成html格式的trace，可以分析卡顿丢帧等问题，如果有打Trace也可以在上面看出来。可以在Chrome里打开查看，如下：
 ![](http://xbdcc.cn/image/CXposed/wechat/trace_html.jpg)
 
-### 介绍三种方便查找id值的方法
+### 再介绍三种方便查找id值的方法
 假如我们要查看id为`dod`的值：
 
 #### 通过`activity_top`查看
 在里面找到元素对应的值，为十六进制值。如上面结果中有这样一行，可以看到id为'dod'的值为十六进制值`7f091794`
 ```
-    com.robinhood.ticker.TickerView{21299fb V.ED.... ........ 0,0-330,114 #7f091794 app:id/dod}
+com.robinhood.ticker.TickerView{21299fb V.ED.... ........ 0,0-330,114 #7f091794 app:id/dod}
 ```
 #### 通过apk查看
 可以把apk拖进AS中，在`resources.arsc`下选择你要找的id，得到的值为十六进制
@@ -206,8 +212,8 @@ TASK com.tencent.mm id=184
 ![支付页面View视图](http://xbdcc.cn/image/CXposed/wechat/wechat_pay1.jpg)
 - 然后我们通过`activity_top`找到这个id的地方知道它其实是`com.robinhood.ticker.TickerView`这个控件，
 嗯这个一看就是不是腾讯的自定义View而是用的第三方库，Github上一搜，可以知道它用的是[ticker](https://github.com/robinhood/ticker)这个库，
-然后后面可以看到钱包页面和零钱页面显示金额的也是用的这个控件
-- 知道了这个库我们可以看下TickerView这个类的代码，这里再推荐一个Chrome插件[octotree](https://www.octotree.io/)比较方便在GitHub网页上切换文件，
+后面可以看到钱包页面和零钱页面显示金额的也是用的这个控件。
+知道了这个库我们可以看下TickerView这个类的代码，这里再推荐一个Chrome插件[octotree](https://www.octotree.io/)比较方便在GitHub网页上切换文件，
 如下，可以看到这里有个setText方法，里面执行了`columnManager.setText(targetText);`代码，而`columnManager`最后执行了`columnManager.draw(canvas, textPaint);`把文字绘制到Canvas上了，
 `setContentDescription(text);`设置了contentDescription的值，所以这就是我们能看到描述和显示金额的值一样，但是它的text属性值却为空的原因了。
 ![](http://xbdcc.cn/image/CXposed/wechat/octotree.jpg)
@@ -219,9 +225,9 @@ TASK com.tencent.mm id=184
 （其实直接看它代码一下就能看出来，假设我们还没看代码先简单猜下）。那么我们看下它的onResume方法调用栈如下：
 ![](http://xbdcc.cn/image/CXposed/wechat/wechat_pay_method.jpg)
 
-- 看到了吗？里面主要就执行了`MallIndexBaseUI`(MallIndexUI的父类）的`onResume`和自己的`dbb`方法，这个时候如果你不想看源码继续分析的话其实就已经可以尝试Hook跑起来看看效果了，
-本着保险起见我们还是先继续看看它的源码
-```java
+    看到了吗？里面主要就执行了`MallIndexBaseUI`(MallIndexUI的父类）的`onResume`和自己的`dbb`方法，这个时候如果你不想看源码继续分析的话其实就已经可以尝试Hook跑起来看看效果了，
+    本着保险起见我们还是先继续看看它的源码
+    ```java
     public final void dbb() {
         AppMethodBeat.i(66131);
         ac.i("MicorMsg.MallIndexUI", "updateBalanceNum");
@@ -250,14 +256,14 @@ TASK com.tencent.mm id=184
         }
         AppMethodBeat.o(66131);
     }
-```
+    ```
 
-可以看出ac.i应该就是打印的log方法，根据它的日志`updateBalanceNum`，可以知道这个方法主要是更新余额的，那么我们是不是可以手动拦截这个方法替换为自己设置的呢？我们来试试，
-拿到方法的对象转为Activity，然后通过`findViewById`找到显示金额的控件，通过反射拿到`setText`并且调用赋值，或者通过`XposedHelpers.callMethod(view, "setText", money)`
-```kotlin
+    可以看出ac.i应该就是打印的log方法，根据它的日志`updateBalanceNum`，可以知道这个方法主要是更新余额的，那么我们是不是可以手动拦截这个方法替换为自己设置的呢？我们来试试，
+    拿到方法的对象转为Activity，然后通过`findViewById`找到显示金额的控件，通过反射拿到`setText`并且调用赋值，或者通过`XposedHelpers.callMethod(view, "setText", money)`
+    ```kotlin
     private fun hookPayPage() {
-        XposedHelpers.findAndHookMethod("com.tencent.mm.plugin.mall.ui.MallIndexUI", classLoader, "dbb", object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam?) {
+        XposedHelpers.findAndHookMethod("com.tencent.mm.plugin.mall.ui.MallIndexUI", classLoader, "dbb", object : XC_MethodReplacement() {
+            override fun replaceHookedMethod(param: MethodHookParam?): Any {
                 param?.let {
                     val activity = param.thisObject as Activity
                     var view = activity.findViewById<View>(0x7f091794) //id:dod的id值为0x7f091794
@@ -265,26 +271,25 @@ TASK com.tencent.mm id=184
                     method.invoke(view, money)
                     xlog("Hook method dbb of MallIndexUI class and set money.")
                 }
+                return ""
             }
         })
     }
-```
+    ```
 
-其实刚刚在`dbb`方法有这样一个方法`this.uDf.setMoney`，通过方法名知道它是设置金额的，所以我们也可以从这里下手，该方法代码如下：
-```java
+- 其实刚刚在`dbb`方法有这样一个方法`this.uDf.setMoney`，通过方法名知道它是设置金额的，所以我们也可以从这里下手，该方法代码如下：
+    ```java
     public void setMoney(String str) {
         AppMethodBeat.i(71606);
         cc(str, false);
         AppMethodBeat.o(71606);
     }
-```
+    ```
 
-再来看`cc`这个方法
-- 第一个if它首先是判断了如果传进来的`str`为`null`则返回
-- 第二个if在`WcPayMoneyLoadingView`类里面我们可以看到`this.BNi`只在`setFirstMoney`方法里面赋值`this.BNi = str;`，
-在`reset`方法里清空该值，并且进到`bs`类里面可以看到`isNullOrNil`方法如果`this.BNi`值为`null`或者字符串长度小于等于0才返回true，
-所以这里其实是判断这个字段是否首次赋值，如果赋值了就直接`setNewMoney`，如果没有就`setFirstMoney`，和下面逻辑一致。
-```java
+    再来看`cc`这个方法，第一个if它首先是判断了如果传进来的`str`为`null`则返回，第二个if在`WcPayMoneyLoadingView`类里面我们可以看到`this.BNi`只在`setFirstMoney`方法里面赋值`this.BNi = str;`，
+    在`reset`方法里清空该值，并且进到`bs`类里面可以看到`isNullOrNil`方法如果`this.BNi`值为`null`或者字符串长度小于等于0才返回true，
+    所以这里其实是判断这个字段是否为空，如果不为空就直接`setFirstMoney`，如果为空就`setNewMoney`，和下面逻辑一致。
+    ```java
     public final void cc(String str, boolean z) {
         AppMethodBeat.i(71607);
         if (str == null) {
@@ -303,12 +308,12 @@ TASK com.tencent.mm id=184
         }
         AppMethodBeat.o(71607);
     }
-```
+    ```
 
-继续看`if (z)`这个判断，里面主要执行了`removeCallbacks(this.BNk);`，而`this.BNk`是一个Runnable对象如下，
-根据日志`show loading pb`知道这里显示了loading Progress，设置了它为可见的，最终其实可以找到它其实id为`gxq`显示金额控件后面的Progress
+    继续看`if (z)`这个判断，里面主要执行了`removeCallbacks(this.BNk);`，而`this.BNk`是一个Runnable对象如下，
+    根据日志`show loading pb`知道这里显示了loading Progress，设置了它为可见的，最终其实可以找到它其实id为`gxq`显示金额控件后面的Progress
 
-```java
+    ```java
     public Runnable BNk = new Runnable() {
         public final void run() {
             AppMethodBeat.i(71596);
@@ -318,6 +323,186 @@ TASK com.tencent.mm id=184
             AppMethodBeat.o(71596);
         }
     };
+    ```
+
+    所以我们可以Hook`cc`这个方法，在它执行前修改第一个参数值为你的金额'money`，如下：
+    ```kotlin
+    private fun hookPayPage2() {
+        XposedHelpers.findAndHookMethod("com.tencent.mm.plugin.wallet_core.ui.view.WcPayMoneyLoadingView", classLoader, "cc", String::class.java, Boolean::class.java,
+            object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam?) {
+                    param?.let{
+                        val view = param.thisObject as View
+                        param.args[0] = money
+                    }
+                }
+            })
+    }
+    ```
+
+### 分析钱包页面WalletBalanceManagerUI
+- 前面分析支付页面知道`WcPayMoneyLoadingView`中有`setFirstMoney`和`setNewMoney`，其实我们就可以直接Hook替换这两个方法，
+而且该方法通用三个页面都有效，如下：
+
+    ```kotlin
+    private fun hookMoney() {
+        val hookClass = classLoader.loadClass(wechatMoneyLoadingView) ?: return
+        XposedHelpers.findAndHookMethod(hookClass, "setFirstMoney", String::class.java, replaceStr)
+        XposedHelpers.findAndHookMethod(hookClass, "setNewMoney", String::class.java, replaceStr)
+    }
+
+    private val replaceStr = object : XC_MethodHook() {
+        override fun beforeHookedMethod(param: MethodHookParam?) {
+            param?.let {
+                val view = param.thisObject as View
+                when(view.context.javaClass.name) {
+                    wechatWalletActivity -> param.args[0] = "¥$money"
+                    wechatPayActivity, wechatChangeActivity -> param.args[0] = money
+                }
+            }
+        }
+    }
+    ```
+
+
+### 分析零钱页面WalletBalanceManagerUI
+
+- 首先我们看下`零钱页面WalletBalanceManagerUI`里面声明的对象，再根据`View Hierarchy`我们知道`AZo`是在`TickerView`外面的`WcPayMoneyLoadingView`,
+继续看`this.AZo.cc`，可以发现它调用的之前支付页面分析的`WcPayMoneyLoadingView`中的`tk`方法，所以我们可以直接Hook这个方法，如下：
+
+    ```kotlin
+    private fun hookChangePage() {
+        XposedHelpers.findAndHookMethod("com.tencent.mm.plugin.wallet.balance.ui.WalletBalanceManagerUI", classLoader, "tk", Boolean::class.java, object : XC_MethodReplacement() {
+            override fun replaceHookedMethod(param: MethodHookParam?): Any {
+                param?.let {
+                    val activity = param.thisObject as Activity
+                    var view = activity.findViewById<View>(0x7f091794) //id:dod的id值为0x7f091794
+                    XposedHelpers.callMethod(view, "setText", money)
+                    xlog("Hook method tk of WalletBalanceManagerUI class and set money.")
+                }
+                return ""
+            }
+        })
+    }
+    ```
+
+## 结语
+其实分析的时候可能有点复杂，并且要善于用多种工具一起分析，但是最后实现的代码很简单，整理后代码如下：
+
+```kotlin
+class WechatHook : IXposedHookLoadPackage {
+
+    private val packageName = "com.tencent.mm"
+    private lateinit var classLoader: ClassLoader
+    private val wechatPayActivity = "com.tencent.mm.plugin.mall.ui.MallIndexUI"
+    private val wechatWalletActivity = "com.tencent.mm.plugin.mall.ui.MallWalletUI"
+    private val wechatChangeActivity =
+        "com.tencent.mm.plugin.wallet.balance.ui.WalletBalanceManagerUI"
+    private val wechatMoneyLoadingView =
+        "com.tencent.mm.plugin.wallet_core.ui.view.WcPayMoneyLoadingView"
+    private var money = "100000000.00"
+
+    override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
+        if (packageName == lpparam.packageName) {
+            xlog("Load Wechat app.")
+            classLoader = lpparam.classLoader
+
+            hookMoney()
+
+//            hookPayPage()
+//            hookPayPage2()
+//
+//            hookChangePage()
+
+        }
+    }
+
+    /**
+     * 改变自定义的文本控件设置文本方法，终极boss，三个都可以
+     */
+    private fun hookMoney() {
+        val hookClass = classLoader.loadClass(wechatMoneyLoadingView) ?: return
+        XposedHelpers.findAndHookMethod(hookClass, "setFirstMoney", String::class.java, replaceStr)
+        XposedHelpers.findAndHookMethod(hookClass, "setNewMoney", String::class.java, replaceStr)
+    }
+
+    /**
+     * 支付页面改变文本
+     */
+    private fun hookPayPage() = XposedHelpers.findAndHookMethod(
+        wechatPayActivity,
+        classLoader,
+        "dbb",
+        replaceViewText
+    )
+
+    /**
+     * 支付页面改变文本另一种方法
+     */
+    private fun hookPayPage2() {
+        XposedHelpers.findAndHookMethod(wechatMoneyLoadingView,
+            classLoader,
+            "cc",
+            String::class.java,
+            Boolean::class.java,
+            object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam?) {
+                    param?.let {
+                        val view = param.thisObject as View
+                        param.args[0] = money
+                    }
+                }
+            })
+    }
+
+    /**
+     * 零钱页面改变文本
+     */
+    private fun hookChangePage() = XposedHelpers.findAndHookMethod(
+        wechatChangeActivity,
+        classLoader,
+        "tk",
+        Boolean::class.java,
+        replaceViewText
+    )
+
+    /**
+     * 在方法调用前手动修改值来改变最后显示的金额
+     */
+    private val replaceStr = object : XC_MethodHook() {
+        override fun beforeHookedMethod(param: MethodHookParam?) {
+            param?.let {
+                xlog("")
+                val view = param.thisObject as View
+                when (view.context.javaClass.name) {
+                    wechatWalletActivity -> param.args[0] = "¥$money"
+                    wechatPayActivity, wechatChangeActivity -> param.args[0] = money
+                }
+            }
+        }
+    }
+
+    /**
+     * 通过找到显示金额的控件反射拿到它的赋值方法并调用
+     */
+    private val replaceViewText = object : XC_MethodReplacement() {
+        override fun replaceHookedMethod(param: MethodHookParam?): Any {
+            param?.let {
+                val activity = param.thisObject as Activity
+                var view = activity.findViewById<View>(0x7f091794) //id:dod的id值为0x7f091794
+                XposedHelpers.callMethod(view, "setText", money)
+                xlog("find view and set text.")
+            }
+            return ""
+        }
+    }
+}
 ```
 
-
+## 参考链接
+- [Xposed原理简介及其精简化](https://www.jianshu.com/p/6b4a80654d4e)
+- [装X指南之用 Xposed 把某宝资产改成100w](https://juejin.im/post/5c4531c451882524ff640bbc)
+- [xposed微信红包](https://blog.csdn.net/xiao_nian/article/details/79391417)
+- [Android "挂逼" 修炼之行---支付宝蚂蚁森林能量自动收取插件开发原理解析](https://blog.csdn.net/jiangwei0910410003/article/details/80107664)
+- [Xposed 框架 hook 简介 原理 案例 [MD]](https://www.cnblogs.com/baiqiantao/p/10699552.html)
+- [Art模式下Xposed实现原理](https://bbs.pediy.com/thread-257844.htm)

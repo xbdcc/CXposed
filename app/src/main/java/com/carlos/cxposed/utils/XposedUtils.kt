@@ -1,5 +1,6 @@
 package com.carlos.cxposed.utils
 
+import android.util.Log
 import android.view.ViewGroup
 import androidx.core.view.forEach
 import de.robv.android.xposed.XposedBridge
@@ -42,10 +43,14 @@ import de.robv.android.xposed.XposedBridge
  */
 
 var TAG = "CXposed->"
-val line = "----------------------------------------------"
+const val line = "----------------------------------------------"
 
-fun log(string: String, tag: String = TAG) {
-    XposedBridge.log("${tag}$string")
+fun log(string: String) {
+    Log.d(TAG, string)
+}
+
+fun xlog(string: String) {
+    XposedBridge.log(TAG + string)
 }
 
 private fun dumpChild(view: ViewGroup) {

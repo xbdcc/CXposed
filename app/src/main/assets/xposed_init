@@ -1,5 +1,8 @@
-com.carlos.cxposed.TargetHook
+com.carlos.cxposed.WechatHook
 com.carlos.cxposed.old.Alipay10_1_55Hook
 com.carlos.cxposed.old.Wechat6_7_3Hook
 
-com.carlos.cxposed.WechatCountHook
+
+
+
+
