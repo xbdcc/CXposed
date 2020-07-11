@@ -1,5 +1,5 @@
 ## Screenshots
 ### Wechat6.7.3
-![wechat](images/wechat_money.jpg)
+![wechat](http://xbdcc.cn/image/CXposed/old/wechat_money.jpg)
 ### Alipay10.1.55
-![alipay](images/alipay_money.jpg)
+![alipay](http://xbdcc.cn/image/CXposed/old/alipay_money.jpg)

@@ -23,11 +23,11 @@
 
 推荐使用jadx工具反编译，如从微信官网下载的[32位版本微信](https://dldir1.qq.com/weixin/android/weixin7016android1700.apk)，默认都是会下载上面[`weixin7016android1700_arm64.apk`](https://dldir1.qq.com/weixin/android/weixin7016android1700_arm64.apk)，
 如果下载arm64版本则有些x86架构的模拟器不支持微信就不能正常使用了，所以用32位主要是为了方便在模拟器上调试
-![](images/wechat_apk.jpg)
+![](http://xbdcc.cn/image/CXposed/wechat/wechat_apk.jpg)
 然后将下载下来的[`weixin7016android1700.apk`](https://dldir1.qq.com/weixin/android/weixin7016android1700.apk)拖入JadxGUI中，反编译结果如下图：
-![](images/jadx1.jpg)
+![](http://xbdcc.cn/image/CXposed/wechat/jadx1.jpg)
 并且我们还可以另存为Gradle项目，在Android Studio或IDEA中查看，操作入口如下：
-![](images/jadx2.jpg)
+![](http://xbdcc.cn/image/CXposed/wechat/jadx2.jpg)
 
 ### Hook分析相关
 - adb命令：
@@ -172,12 +172,12 @@ TASK com.tencent.mm id=184
 ```
 
 #### monitor
-- ![](images/monitor_view.jpg)可以查看布局元素和trace信息，分析布局可以查看之前文章[Android通过辅助功能实现抢微信红包原理简单介绍
+- ![](http://xbdcc.cn/image/CXposed/wechat/monitor_view.jpg)可以查看布局元素和trace信息，分析布局可以查看之前文章[Android通过辅助功能实现抢微信红包原理简单介绍
 ](https://www.jianshu.com/p/e1099a94b979)
-- ![](images/monitor_method.jpg)，分析trace方法调用栈，例如下：
-![](images/trace_method.jpg)
-- ![](images/monitor_trace.jpg)，生成生成html格式的trace，可以分析卡顿丢帧等问题，如果有打Trace也可以在上面看出来。可以在Chrome里打开查看，如下：
-![](images/trace_html.jpg)
+- ![](http://xbdcc.cn/image/CXposed/wechat/monitor_method.jpg)，分析trace方法调用栈，例如下：
+![](http://xbdcc.cn/image/CXposed/wechat/trace_method.jpg)
+- ![](http://xbdcc.cn/image/CXposed/wechat/monitor_trace.jpg)，生成生成html格式的trace，可以分析卡顿丢帧等问题，如果有打Trace也可以在上面看出来。可以在Chrome里打开查看，如下：
+![](http://xbdcc.cn/image/CXposed/wechat/trace_html.jpg)
 
 ### 介绍三种方便查找id值的方法
 假如我们要查看id为`dod`的值：
@@ -189,10 +189,10 @@ TASK com.tencent.mm id=184
 ```
 #### 通过apk查看
 可以把apk拖进AS中，在`resources.arsc`下选择你要找的id，得到的值为十六进制
-![](/images/get_id.jpg)
+![](/http://xbdcc.cn/image/CXposed/wechat/get_id.jpg)
 #### 通过jadx查看
 双击`resources.arsc`，可以在里面搜索id，得到的值为十进制。如id为`dod`的值为十进制值`2131302292`
-![](/images/jadx3.jpg)
+![](/http://xbdcc.cn/image/CXposed/wechat/jadx3.jpg)
 
 
 ## Hook分析
@@ -203,21 +203,21 @@ TASK com.tencent.mm id=184
 
 ### 分析布局
 - 首先打开支付页面我们通过monitor的`Dump View Hierarchy`，得知显示钱包的金额的控件id为`dod`
-![支付页面View视图](images/wechat_pay1.jpg)
+![支付页面View视图](http://xbdcc.cn/image/CXposed/wechat/wechat_pay1.jpg)
 - 然后我们通过`activity_top`找到这个id的地方知道它其实是`com.robinhood.ticker.TickerView`这个控件，
 嗯这个一看就是不是腾讯的自定义View而是用的第三方库，Github上一搜，可以知道它用的是[ticker](https://github.com/robinhood/ticker)这个库，
 然后后面可以看到钱包页面和零钱页面显示金额的也是用的这个控件
 - 知道了这个库我们可以看下TickerView这个类的代码，这里再推荐一个Chrome插件[octotree](https://www.octotree.io/)比较方便在GitHub网页上切换文件，
 如下，可以看到这里有个setText方法，里面执行了`columnManager.setText(targetText);`代码，而`columnManager`最后执行了`columnManager.draw(canvas, textPaint);`把文字绘制到Canvas上了，
 `setContentDescription(text);`设置了contentDescription的值，所以这就是我们能看到描述和显示金额的值一样，但是它的text属性值却为空的原因了。
-![](images/octotree.jpg)
+![](http://xbdcc.cn/image/CXposed/wechat/octotree.jpg)
 
 
 ### 分析支付页面MallIndexUI
 
 - 首先我们观察到每次进入支付页面它的金额旁边是有个loading的，并且从钱包页面返回到支付页面也都会loading一下，那么可以猜想它可能是在onResume里面做了什么操作
 （其实直接看它代码一下就能看出来，假设我们还没看代码先简单猜下）。那么我们看下它的onResume方法调用栈如下：
-![](images/wechat_pay_method.jpg)
+![](http://xbdcc.cn/image/CXposed/wechat/wechat_pay_method.jpg)
 
 - 看到了吗？里面主要就执行了`MallIndexBaseUI`(MallIndexUI的父类）的`onResume`和自己的`dbb`方法，这个时候如果你不想看源码继续分析的话其实就已经可以尝试Hook跑起来看看效果了，
 本着保险起见我们还是先继续看看它的源码
@@ -319,4 +319,5 @@ TASK com.tencent.mm id=184
         }
     };
 ```
+
 
