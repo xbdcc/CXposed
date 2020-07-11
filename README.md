@@ -13,7 +13,7 @@
 
 ![](http://xbdcc.cn/image/CXposed/wechat/wechat.gif)
 
-[旧版本实现效果](https://github.com/xbdcc/CXposed/blob/master/res/old_README.md)
+[旧版本实现效果](https://github.com/xbdcc/CXposed/blob/master/res/old/old_README.md)
 
 ## 准备工作
 ### Root相关
