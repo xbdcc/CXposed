@@ -3,7 +3,10 @@ package com.carlos.cxposed
 import android.app.Activity
 import android.view.View
 import com.carlos.cxposed.utils.xlog
-import de.robv.android.xposed.*
+import de.robv.android.xposed.IXposedHookLoadPackage
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XC_MethodReplacement
+import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 
 /**
@@ -40,6 +43,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
 
 /**
  * Github: https://github.com/xbdcc/.
+ * Test in Wechat 7.0.16.
  * Created by Carlos on 2020/7/4.
  */
 class WechatHook : IXposedHookLoadPackage {
@@ -66,7 +70,24 @@ class WechatHook : IXposedHookLoadPackage {
 //
 //            hookChangePage()
 
+            hookBeat()
         }
+    }
+
+    /**
+     * 屏蔽拍一拍
+     */
+    private fun hookBeat() {
+        XposedHelpers.findAndHookMethod("com.tencent.mm.ui.chatting.view.AvatarImageView",
+            classLoader,
+            "setOnDoubleClickListener",
+            "com.tencent.mm.plugin.story.api.i\$a",
+            object : XC_MethodReplacement() {
+                override fun replaceHookedMethod(param: MethodHookParam?): Any {
+                    xlog("replace double click")
+                    return ""
+                }
+            })
     }
 
     /**
